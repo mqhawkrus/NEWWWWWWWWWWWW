@@ -1,0 +1,107 @@
+<html>
+    <style>
+        /* Modern Style Update for Stress Analysis App */
+
+        /* Global Reset & Base Styles */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        html { 
+            scroll-behavior: smooth; 
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ebf5ff;
+            color: #0b2e64;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            line-height: 1.6;
+        }
+
+        .head {
+            font-size: 70px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Style for the container that holds the pie charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        /* Each individual chart container */
+        .chart-div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            min-width: 380px;
+            max-width: 500px;
+            height: 350px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Hover effect */
+        .chart-div:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        /* Style for the chart titles */
+        .chart-div h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #555;
+        }
+
+        /* Make the whole div clickable */
+        .chart-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+    <body>
+        <div class="head">
+            Stress Management Games..
+        </div>
+        
+        <div class="charts-container">
+            <!-- Divs to hold the 7 pie charts, each with a title -->
+            <a href="games.html" class="chart-link">
+                <div class="chart-div">
+                    <h2>Pop IT</h2>  
+                    <div id="chart_div1"></div>
+                </div>
+            </a>
+            <a href="newnewwwgame.html" class="chart-link">
+                <div class="chart-div">
+                    <h2>Satisfying music</h2>
+                    <div id="chart_div2"></div>
+                </div>
+            </a>
+            <a href="game2.html" class="chart-link">
+                <div class="chart-div">
+                    <h2>BIRDI</h2>
+                    <div id="chart_div3"></div>
+                </div>
+            </a>
+            
+        </div>
+    </body>
+</html>

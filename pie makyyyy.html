@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Pie Chart Maker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: rgb(20, 25, 36);
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+h2 {
+    color: white;
+    margin-bottom: 20px;
+    animation: fadeIn 1s forwards;
+    animation-delay: 0.5s;
+}
+
+.container {
+    text-align: center;
+    display: flex;
+    color: white;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1s forwards;
+    animation-delay: 1s;
+}
+
+input {
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    width: 200px;
+    max-width: 80%;
+    transition: all 0.3s ease;
+}
+
+/* Style for label inputs */
+input[type="text"] {
+    background-color: #27282a;
+}
+
+/* Style for value inputs */
+input[type="number"] {
+    background-color: #3a4f5f;
+}
+
+/* Focus effect */
+input:focus {
+    outline: none;
+    border: 2px solid #FF5733;
+    background-color: #666;
+}
+
+/* Button styles */
+button {
+    padding: 10px 20px;
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+.download{
+    padding: 10px 20px;
+    background-color: #335cff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.download:hover {
+    background-color: #0037a5;
+    transform: scale(1.1);
+}
+
+.download:active {
+    background-color: #335cff;
+    transform: scale(1);
+}
+
+
+button:hover {
+    background-color: #C84E2C;
+    transform: scale(1.1);
+}
+
+button:active {
+    background-color: #9B3C1A;
+    transform: scale(1);
+}
+
+canvas {
+    background-color: #323951;
+    max-width: 50%;
+    max-height: 75%;
+    display: block;
+    border-radius: 20px;
+    margin-top: 20px;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+    animation-delay: 1.5s;
+}
+
+/* Animation for Fade In Effect */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Button Click Animation */
+@keyframes buttonClick {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+        input {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="font-size: 70px;">ENTER DATA</h2>
+
+<!-- Form to input values -->
+<div>
+    <label for="label1">Label 1:</label>
+    <input type="text" id="label1" placeholder="Enter Label 1">
+    <input type="number" id="value1" placeholder="Enter Value 1">
+    <br>
+    
+    <label for="label2">Label 2:</label>
+    <input type="text" id="label2" placeholder="Enter Label 2">
+    <input type="number" id="value2" placeholder="Enter Value 2">
+    <br>
+    
+    <label for="label3">Label 3:</label>
+    <input type="text" id="label3" placeholder="Enter Label 3">
+    <input type="number" id="value3" placeholder="Enter Value 3">
+    <br>
+    
+    <button onclick="updateChart()">Create Pie Chart</button>
+    <!-- Add this button next to the existing "Create Pie Chart" button -->
+<button class="download" onclick="downloadChart()">Download as Word</button>
+</div>
+
+<!-- Canvas for Pie Chart with responsive size -->
+<canvas id="myPieChart"></canvas>
+
+<script>
+    var ctx = document.getElementById('myPieChart').getContext('2d');
+    var myPieChart = new Chart(ctx, {
+        type: 'pie', // Define chart type
+        data: {
+            labels: [], // Labels for the pie chart
+            datasets: [{
+                data: [], // Values for the pie chart
+                backgroundColor: ['#FF0000', '#FFE300', '#00CED1'], // Colors for each section
+                borderColor: ['#FF0000', '#FFE300', '#00CED1'], // Border colors
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true, // Make the chart responsive
+            maintainAspectRatio: false, // Allow it to resize dynamically
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Function to update chart based on user input
+    function updateChart() {
+        // Get values from input fields
+        var label1 = document.getElementById('label1').value;
+        var value1 = parseInt(document.getElementById('value1').value);
+        
+        var label2 = document.getElementById('label2').value;
+        var value2 = parseInt(document.getElementById('value2').value);
+        
+        var label3 = document.getElementById('label3').value;
+        var value3 = parseInt(document.getElementById('value3').value);
+        
+        // Check if values are valid numbers
+        if (isNaN(value1) || isNaN(value2) || isNaN(value3)) {
+            alert('Please enter valid numbers for values.');
+            return;
+        }
+
+        // Update chart data
+        myPieChart.data.labels = [label1, label2, label3];
+        myPieChart.data.datasets[0].data = [value1, value2, value3];
+
+        // Update chart
+        myPieChart.update();
+    }
+     // Add this function after the updateChart() function
+     function downloadChart() {
+        const canvas = document.getElementById('myPieChart');
+        const imageURL = canvas.toDataURL('image/png');
+        
+        // Create HTML content with the chart image
+        const htmlContent = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <title>Pie Chart</title>
+                </head>
+                <body>
+                    <img src="${imageURL}" style="max-width: 100%; height: auto;">
+                </body>
+            </html>
+        `;
+
+        // Create blob and download
+        const blob = new Blob(['\ufeff', htmlContent], {
+            type: 'application/msword'
+        });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'chart.doc';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>

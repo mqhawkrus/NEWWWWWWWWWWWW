@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mental Health Wiki & Custom Data</title>
+  <style>
+    :root {
+      --purplish-blue: #513eff;
+      --duolingo-green: #51d400;
+      --red: #FF4B4B;
+      --yellow: #FFCA3A;
+      --white: #FFFFFF;
+      --gray: #F5F5F5;
+      --blue: #007bff;
+    }
+    /* Global Styles */
+    body {
+      font-family: 'Nunito Sans', Arial, sans-serif;
+      background-color: var(--gray);
+      margin: 0;
+      padding: 0;
+    }
+    a {
+      text-decoration: none;
+    }
+    /* Wiki View Styles */
+    #wiki-view {
+      padding-bottom: 80px; /* Reserve space for the toggle button */
+    }
+    .header {
+      background-color: var(--duolingo-green);
+      color: var(--white);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background-image: url('https://preview.redd.it/kurzgesagt-4k-wallpapers-3840x2160-v0-thrpw4zmouhb1.png');
+      background-size: cover;
+    }
+    .header h1 {
+      font-size: 80px;
+      margin: 0;
+    }
+    .nav {
+      padding: 1rem;
+      background: var(--white);
+      text-align: center;
+    }
+    .nav-item {
+      display: inline-block;
+      margin: 0 1rem;
+      font-weight: bold;
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      background: var(--blue);
+      color: var(--white);
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+    .nav-item:hover {
+      transform: scale(1.05);
+    }
+    .card {
+      background: var(--white);
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 800px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      color: var(--duolingo-green);
+      border-bottom: 3px solid var(--yellow);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .content {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    .content-fill {
+      height: 100%;
+      width: 75%;
+    }
+    /* New Section: Databases We Used */
+    #DATABASES {
+      padding: 1rem;
+    }
+    #DATABASES ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    #DATABASES li {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    /* Wiki Custom Data Section */
+    #CUSTOM {
+      padding: 1rem;
+    }
+    /* Static data (if any) can remain here */
+    #static-entries a.entry-link {
+      display: block;
+      padding: 1rem;
+      margin: 1rem 0;
+      background: var(--yellow);
+      color: #000;
+      border-radius: 10px;
+    }
+    /* Container for dynamic user-added entries */
+    #wiki-dynamic-entries a {
+      display: block;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      background: #e0e0e0;
+      border-radius: 5px;
+      color: var(--blue);
+    }
+    /* Floating Toggle Button */
+    #toggle-editor {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--blue);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      text-align: center;
+      font-size: 24px;
+      line-height: 50px;
+      text-decoration: none;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      z-index: 1000;
+    }
+    #toggle-editor:hover {
+      background-color: #0056b3;
+    }
+    /* Custom Data Editor View Styles */
+    #editor {
+      display: none;
+      background: var(--white);
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    #editor input, 
+    #editor textarea, 
+    #editor button {
+      display: block;
+      width: 90%;
+      max-width: 400px;
+      margin: 10px auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #editor button {
+      background-color: var(--duolingo-green);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    #editor button:hover {
+      background-color: #46a600;
+    }
+    #entry-list {
+      margin-top: 20px;
+      text-align: left;
+      padding: 10px;
+      background: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .entry-item {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+    .entry-item a {
+      text-decoration: none;
+      color: var(--blue);
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* Delete Button Styles */
+    .delete-btn {
+      background-color: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      margin-left: 10px;
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+    /* CSV Download Link */
+    #download-link {
+      display: block;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: var(--blue);
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      max-width: 400px;
+      transition: background-color 0.3s ease;
+    }
+    #download-link:hover {
+      background-color: #0056b3;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Optional: Mouse Trail Effect */
+    .trail {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: rgb(255, 208, 0);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: trailEffect 0.5s linear forwards;
+    }
+    @keyframes trailEffect {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    /* --- Highlight & Tooltip Styles (Restored) --- */
+    .highlight {
+      background-color: #ffeb3b; /* Bright yellow background */
+      padding: 0.2em;
+      border-radius: 5px;
+      position: relative;
+      cursor: pointer;
+    }
+    .highlight a {
+      color: #0047ee;
+      text-decoration: underline;
+      margin-left: 5px;
+    }
+    .highlight a:hover {
+      color: #551A8B;
+    }
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      background-color: #ffeb3b;
+      padding: 0.2em;
+      border-radius: 5px;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      border-radius: 5px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tooltip .tooltiptext::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: black transparent transparent transparent;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltip-green {
+      background-color: #8bc34a;
+    }
+    .tooltip-blue {
+      background-color: #03a9f4;
+    }
+  </style>
+</head>
+<body>
+  <!-- Wiki View -->
+  <div id="wiki-view">
+    <div class="custom-cursor" id="cursor"></div>
+    <header class="header">
+      <h1>Mental Health Wiki</h1>
+    </header>
+    <nav class="nav">
+      <a href="#STRESS" class="nav-item">Stress Types</a>
+      <a href="#PTSD" class="nav-item">PTSD Guide</a>
+      <a href="#health" class="nav-item">Prevention</a>
+      <a href="#CUSTOM" class="nav-item">Sources</a>
+      <a href="#coping" class="nav-item">Coping</a>
+    </nav>
+    
+    <!-- Wiki Content Cards -->
+    <div class="card">
+      <h2 class="section-title">📚 Understanding Stress</h2>
+      <div class="content">
+        <div class="content-fill"></div>
+      </div>
+      <section id="STRESS">
+        <p>
+          <span class="highlight tooltip">
+            Stress can affect anyone, but specific types of stress are more common among certain groups or professions
+            <span class="tooltiptext">
+              <a href="https://www.mayoclinic.org/healthy-lifestyle/stress-management/in-depth/stress-symptoms/art-20046037" target="_blank">
+                Source: Mayo Clinic – Stress Symptoms
+              </a>
+            </span>
+          </span>.
+          due to unique challenges
+        </p>
+        <p class="highlight">
+          THERE ARE 5 TYPES 
+          <span class="tooltip">
+            More info
+            <span class="tooltiptext">
+              <a href="https://www.mayoclinic.org/healthy-lifestyle/stress-management/in-depth/stress-symptoms/art-20046037" target="_blank">
+                Source: Mayo Clinic – Stress Symptoms
+              </a>
+            </span>
+          </span>
+        </p>
+        <ul>
+          <li>🚑 Acute stress</li>
+          <li>⚕️ Chronic Stress</li>
+          <li>🏋️ Traumatic Stress</li>
+          <li>🏋️ Situational Stress</li>
+          <li>🏆 Eustress</li>
+        </ul>
+      </section>
+    </div>
+    
+    <div class="card">
+      <section id="PTSD">
+        <h2 class="section-title">🧠 PTSD Overview</h2>
+        <div class="content">
+          <div class="content-fill" style="width: 40%"></div>
+        </div>
+        <p>
+          <span class="highlight tooltip">
+            PTSD occurs when the brain struggles to process a traumatic experience
+            <span class="tooltiptext">
+              <a href="https://www.nimh.nih.gov/health/topics/post-traumatic-stress-disorder-ptsd" target="_blank">
+                Source: NIMH PTSD Overview
+              </a>
+            </span>
+          </span>, leaving an individual in a prolonged state of fear
+          <span class="highlight tooltip">
+            <span class="tooltiptext">
+              <a href="https://www.ptsd.va.gov/professional/treat/txessentials/index.asp" target="_blank">
+                Source: VA National Center for PTSD – Treatments
+              </a>
+            </span>
+          </span>.
+        </p>
+        <ul>
+          <h3>Phases of PTSD</h3>
+          <li>Denial Phase:
+            <ul>
+              <li>Initial phase where the trauma is hard to acknowledge.</li>
+            </ul>
+          </li>
+          <li>Chronic Phase</li>
+          <li>Acute Stress Disorder (ASD): Symptoms last for a short duration and may develop into PTSD.</li>
+          <li>Complex PTSD (C-PTSD): Develops from prolonged exposure to trauma.</li>
+          <li>
+            Treatment Options for PTSD include:
+            <ul>
+              <li>Cognitive Behavioral Therapy (CBT)</li>
+              <li>Exposure Therapy</li>
+              <li>Eye Movement Desensitization and Reprocessing (EMDR)</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+    </div>
+    
+    <div class="card">
+      <section id="health">
+        <h2 class="section-title">🏆 Eustress</h2>
+        <p>
+          Where stress 
+          <span class="highlight tooltip">
+            enhances function
+            <span class="tooltiptext">
+              <a href="https://www.health.harvard.edu/staying-healthy/understanding-stress" target="_blank">
+                Source: Harvard Health – Understanding Stress
+              </a>
+            </span>
+          </span> — such as during challenging work or physical training — it is considered eustress.
+        </p>
+      </section>
+    </div>
+    
+    <div class="card">
+      <section id="coping">
+        <h2 class="section-title">🤔 Coping with Stress</h2>
+        <div class="content">
+          <div class="content-fill" style="width: 40%"></div>
+        </div>
+        <p>
+          Coping strategies include 
+          <span class="highlight tooltip">
+            stress management
+            <span class="tooltiptext">
+              <a href="https://www.apa.org/topics/stress" target="_blank">
+                Source: APA – Stress
+              </a>
+            </span>
+          </span>, setting limits, engaging in hobbies, exercise, and 
+          <span class="highlight tooltip">
+            seeking support
+            <span class="tooltiptext">
+              <a href="https://www.mayoclinic.org/healthy-lifestyle/stress-management/in-depth/stress-management/art-20044151" target="_blank">
+                Source: Mayo Clinic – Stress Management
+              </a>
+            </span>
+          </span>.
+        </p>
+      </section>
+    </div>
+    
+    <!-- New Section: Databases We Used -->
+    <div class="card" id="DATABASES">
+      <h2 class="section-title">📚 Databases We Used</h2>
+      <ul>
+        <li>
+          <strong>Workplace Stress:</strong> Up to 80% of workers report feeling stress on the job.
+          (<a href="https://www.stress.org/stress-statistics" target="_blank">American Institute of Stress</a>)
+        </li>
+        <li>
+          <strong>Student Stress:</strong> Over 60% of college students report experiencing significant stress.
+          (<a href="https://www.acha.org/documents/ncha/NCHA-II_SPRING_2019_US_REFERENCE_GROUP_EXECUTIVE_SUMMARY.pdf" target="_blank">ACHA-NCHA II 2019</a>)
+        </li>
+        <li>
+          <strong>Common Stressors:</strong> Key factors include academic pressure, financial constraints, work demands, and relationship issues.
+          (<a href="https://www.apa.org/news/press/releases/stress/2019/stress-report.pdf" target="_blank">APA Stress Report</a>)
+        </li>
+        <li>
+          <strong>Mental Health Impact:</strong> Chronic stress is linked to anxiety, depression, and other health issues.
+          (<a href="https://www.who.int/mental_health/en/" target="_blank">World Health Organization</a>)
+        </li>
+        <li>
+          <strong>Stress in students:</strong> Current Student Stress Statistics: 2025 Data, Analysis & Predictions
+          (<a href="https://research.com/education/student-stress-statistics" target="_blank">link</a>)
+        </li>
+        <li>
+          <strong>General Population:</strong> Recent surveys indicate that nearly 70% of adults report feeling stressed at least several times a month.
+          (<a href="https://adaa.org/facts-statistics" target="_blank">ADAA</a>)
+        </li>
+        <li>
+          <strong>Student Stress:</strong> Over 60% of college students experience significant stress related to academics and finances.
+          (<a href="https://www.acha.org/documents/ncha/NCHA-II_SPRING_2019_US_REFERENCE_GROUP_EXECUTIVE_SUMMARY.pdf" target="_blank">ACHA-NCHA II 2019</a>)
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Custom Data Section in Wiki -->
+    <div class="card" id="CUSTOM">
+      <h2 class="section-title">📖 User Added Entries</h2>
+      <div id="static-entries"></div>
+      <div id="wiki-dynamic-entries"></div>
+    </div>
+    <!-- Floating button to open the Editor -->
+    <div id="toggle-editor" title="Edit Entries">&#9998;</div>
+  </div>
+  
+  <!-- Editor View -->
+  <div id="editor">
+    <h2>Add New Entry</h2>
+    <input type="text" id="entry-heading" placeholder="Enter heading" />
+    <textarea id="entry-content" placeholder="Enter content or link (HTML allowed)" rows="4"></textarea>
+    <button id="add-btn">Add Entry</button>
+    <div id="message"></div>
+    <h3>Existing Entries</h3>
+    <div id="entry-list"></div>
+    <a id="download-link" href="#" download="entries.csv">Download CSV</a>
+    <br/>
+    <button id="back-to-wiki" style="margin-top:20px; background-color:#FFCA3A; color:#000;">Back to Wiki</button>
+  </div>
+  
+  <script>
+    // ----- Custom Data Management -----
+    let entries = JSON.parse(localStorage.getItem('entries')) || [];
+
+    const updateEditorList = () => {
+      const entryList = document.getElementById('entry-list');
+      entryList.innerHTML = '';
+      if (entries.length === 0) {
+        entryList.innerHTML = '<p>No entries added yet.</p>';
+      } else {
+        entries.forEach((entry, index) => {
+          const div = document.createElement('div');
+          div.className = 'entry-item';
+          div.innerHTML = `<a onclick="openEntry(${index})">${entry.heading}</a>
+                           <button class="delete-btn" onclick="deleteEntry(${index})">Delete</button>`;
+          entryList.appendChild(div);
+        });
+      }
+      updateDownloadLink();
+    };
+
+    const updateWikiEntries = () => {
+      const wikiDynamic = document.getElementById('wiki-dynamic-entries');
+      wikiDynamic.innerHTML = '';
+      if (entries.length > 0) {
+        entries.forEach((entry, index) => {
+          const a = document.createElement('a');
+          a.href = 'javascript:void(0)';
+          a.onclick = () => openEntry(index);
+          a.textContent = entry.heading;
+          wikiDynamic.appendChild(a);
+        });
+      }
+    };
+
+    const updateBothEntries = () => {
+      localStorage.setItem('entries', JSON.stringify(entries));
+      updateEditorList();
+      updateWikiEntries();
+    };
+
+    const generateCSV = () => {
+      let csvContent = 'Heading,Content\n';
+      entries.forEach(entry => {
+        csvContent += `"${entry.heading.replace(/"/g, '""')}","${entry.content.replace(/"/g, '""')}"\n`;
+      });
+      return csvContent;
+    };
+
+    const updateDownloadLink = () => {
+      const downloadLink = document.getElementById('download-link');
+      const csvContent = generateCSV();
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+    };
+
+    const showMessage = (text, color = 'green') => {
+      const messageDiv = document.getElementById('message');
+      messageDiv.style.color = color;
+      messageDiv.textContent = text;
+      setTimeout(() => { messageDiv.textContent = ''; }, 3000);
+    };
+
+    const addEntry = () => {
+      const headingInput = document.getElementById('entry-heading');
+      const contentInput = document.getElementById('entry-content');
+      const heading = headingInput.value.trim();
+      const content = contentInput.value.trim();
+      if (!heading || !content) {
+        showMessage('Enter a valid heading and content.', 'red');
+        return;
+      }
+      if (entries.some(entry => entry.heading === heading)) {
+        showMessage('An entry with that heading already exists!', 'red');
+        return;
+      }
+      entries.push({ heading, content });
+      updateBothEntries();
+      headingInput.value = '';
+      contentInput.value = '';
+      showMessage('Entry added successfully!');
+    };
+ 
+    const deleteEntry = (index) => {
+      entries.splice(index, 1);
+      updateBothEntries();
+      showMessage('Entry deleted successfully!', 'red');
+    };
+
+    const openEntry = (index) => {
+      const entry = entries[index];
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${entry.heading}</title>
+  <style>
+    body { font-family: 'Nunito Sans', Arial, sans-serif; padding: 20px; }
+    h1 { color: var(--duolingo-green, #51d400); }
+  </style>
+</head>
+<body>
+  <h1>${entry.heading}</h1>
+  <div>${entry.content}</div>
+</body>
+</html>`);
+      newWindow.document.close();
+    };
+
+    document.getElementById('add-btn').addEventListener('click', addEntry);
+    document.getElementById('entry-content').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        addEntry();
+        e.preventDefault();
+      }
+    });
+
+    const wikiView = document.getElementById('wiki-view');
+    const editor = document.getElementById('editor');
+    const toggleBtn = document.getElementById('toggle-editor');
+    const backBtn = document.getElementById('back-to-wiki');
+
+    toggleBtn.addEventListener('click', () => {
+      wikiView.style.display = 'none';
+      editor.style.display = 'block';
+    });
+    backBtn.addEventListener('click', () => {
+      editor.style.display = 'none';
+      wikiView.style.display = 'block';
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      let trail = document.createElement("div");
+      trail.classList.add("trail");
+      document.body.appendChild(trail);
+      trail.style.left = `${e.clientX}px`;
+      trail.style.top = `${e.clientY}px`;
+      setTimeout(() => { trail.remove(); }, 300);
+    });
+
+    updateBothEntries();
+  </script>
+</body>
+</html>

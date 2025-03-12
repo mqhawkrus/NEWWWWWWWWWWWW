@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satisfying Glide Game</title>
+    <style>
+        body {
+            background-color: #222;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        canvas {
+            background: linear-gradient(0deg, #87CEEB, #1E90FF); /* Sky gradient */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <audio id="jumpSound" src="bubble-pop-283674.mp3" preload="auto"></audio> <!-- Replace with your sound file -->
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let player = {
+            x: 150,
+            y: canvas.height / 2,
+            radius: 20,
+            velocity: 0,
+            gravity: 0.3,
+            lift: -8,
+            color: "#ffcc00"
+        };
+
+        let pipes = [];
+        let frame = 0;
+
+        function createPipe() {
+            let height = Math.random() * (canvas.height / 2) + 100;
+            pipes.push({
+                x: canvas.width,
+                y: height,
+                width: 50,
+                gap: 180,
+                color: "#4CAF50"
+            });
+        }
+
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPipes() {
+            pipes.forEach(pipe => {
+                ctx.fillStyle = pipe.color;
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.y);
+                ctx.fillRect(pipe.x, pipe.y + pipe.gap, pipe.width, canvas.height - pipe.y - pipe.gap);
+            });
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            player.velocity += player.gravity;
+            player.y += player.velocity;
+            drawPlayer();
+            drawPipes();
+
+            pipes.forEach(pipe => {
+                pipe.x -= 3;
+            });
+
+            if (frame % 120 === 0) createPipe();
+            pipes = pipes.filter(pipe => pipe.x > -pipe.width);
+
+            if (player.y + player.radius >= canvas.height || player.y - player.radius <= 0) {
+                resetGame();
+            }
+
+            requestAnimationFrame(update);
+            frame++;
+        }
+
+        function resetGame() {
+            player.y = canvas.height / 2;
+            player.velocity = 0;
+            pipes = [];
+            frame = 0;
+        }
+
+        window.addEventListener("keydown", () => {
+            player.velocity = player.lift;
+            document.getElementById('jumpSound').play(); // Play jump sound
+        });
+
+        update();
+    </script>
+</body>
+</html>

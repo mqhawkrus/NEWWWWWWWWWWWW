@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game</title>
+  <style>
+    body {
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+    }
+    canvas {
+      background-color: #000;
+      border: 2px solid #fff;
+    }
+    #score {
+      position: absolute;
+      top: 20px;
+      font-size: 24px;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const scale = 20;
+    const rows = canvas.height / scale;
+    const columns = canvas.width / scale;
+
+    let snake;
+    let fruit;
+    let score = 0;
+    let gameSpeed = 500; // Initial game speed in milliseconds
+    let gameInterval;
+
+    function startGame() {
+      if (gameInterval) clearInterval(gameInterval);
+      gameInterval = setInterval(gameLoop, gameSpeed);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fruit.draw();
+      snake.update();
+      snake.draw();
+
+      if (snake.eat(fruit)) {
+        fruit.pickLocation();
+        score++;
+        document.getElementById('score').innerText = 'Score: ' + score;
+        // Optionally, increase speed as the snake grows
+        // changeSpeed(gameSpeed - 10);
+      }
+
+      if (snake.checkCollision()) {
+        alert('Game Over! Final Score: ' + score);
+        score = 0;
+        document.getElementById('score').innerText = 'Score: ' + score;
+        snake = new Snake();
+        fruit = new Fruit();
+        fruit.pickLocation();
+        startGame();
+      }
+    }
+
+    window.addEventListener("keydown", e => {
+      const direction = e.key.replace("Arrow", "");
+      snake.changeDirection(direction);
+    });
+
+    function Snake() {
+      this.body = [{ x: 10, y: 10 }];
+      this.direction = 'Right';
+      this.changeDirection = function(direction) {
+        if (this.direction === 'Up' && direction !== 'Down') {
+          this.direction = direction;
+        } else if (this.direction === 'Down' && direction !== 'Up') {
+          this.direction = direction;
+        } else if (this.direction === 'Left' && direction !== 'Right') {
+          this.direction = direction;
+        } else if (this.direction === 'Right' && direction !== 'Left') {
+          this.direction = direction;
+        }
+      };
+      this.update = function() {
+        const head = { ...this.body[0] };
+        if (this.direction === 'Up') head.y -= 1;
+        if (this.direction === 'Down') head.y += 1;
+        if (this.direction === 'Left') head.x -= 1;
+        if (this.direction === 'Right') head.x += 1;
+        this.body.unshift(head);
+        this.body.pop();
+      };
+      this.draw = function() {
+        ctx.fillStyle = '#00FF00';
+        this.body.forEach(segment => {
+          ctx.fillRect(segment.x * scale, segment.y * scale, scale, scale);
+        });
+      };
+      this.eat = function(fruit) {
+        const head = this.body[0];
+        return head.x === fruit.x && head.y === fruit.y;
+      };
+      this.checkCollision = function() {
+        const head = this.body[0];
+        if (head.x < 0 || head.x >= columns || head.y < 0 || head.y >= rows) {
+          return true;
+        }
+        for (let i = 1; i < this.body.length; i++) {
+          if (head.x === this.body[i].x && head.y === this.body[i].y) {
+            return true;
+          }
+        }
+        return false;
+      };
+    }
+
+    function Fruit() {
+      this.x = 0;
+      this.y = 0;
+      this.pickLocation = function() {
+        this.x = Math.floor(Math.random() * columns);
+        this.y = Math.floor(Math.random() * rows);
+      };
+      this.draw = function() {
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(this.x * scale, this.y * scale, scale, scale);
+      };
+    }
+
+    // Start the game initially
+    snake = new Snake();
+    fruit = new Fruit();
+    fruit.pickLocation();
+    startGame();
+  </script>
+</body>
+</html>

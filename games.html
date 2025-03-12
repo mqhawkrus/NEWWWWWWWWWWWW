@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop It Game</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.game-container {
+    text-align: center;
+}
+
+.popit-board {
+    display: grid;
+    grid-template-columns: repeat(5, 100px);  /* 5 columns */
+    grid-gap: 10px;
+    margin-top: 20px;
+    justify-items: center;
+}
+
+.bubble {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #3498db;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bubble.popped {
+    background-color: #95a5a6;
+    transform: scale(0.9);
+}
+
+.score {
+    margin-top: 20px;
+    font-size: 1.5em;
+}
+
+</style>
+<body>   
+        <div class="game-container">
+            <h1>Pop It Game</h1>
+            <div id="popitBoard" class="popit-board"></div>
+            <div class="score">
+                <p>Score: <span id="score">0</span></p>
+            </div>
+        </div>
+    
+        <audio id="popSound" src="bubble-pop-283674.mp3" preload="auto"></audio>
+
+<script>
+const board = document.getElementById('popitBoard');
+const scoreElement = document.getElementById('score');
+const popSound = document.getElementById('popSound');
+let score = 0;
+const totalBubbles = 25; // Total number of bubbles
+
+// Create the bubbles on the board
+for (let i = 0; i < totalBubbles; i++) {
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.addEventListener('click', () => popBubble(bubble));
+    board.appendChild(bubble);
+}
+
+// Function to handle popping a bubble
+function popBubble(bubble) {
+    if (!bubble.classList.contains('popped')) {
+        bubble.classList.add('popped');
+        score++;
+        scoreElement.textContent = score;
+        
+        // Play sound when bubble is popped
+        popSound.play();
+
+        // Reset the bubble after 1 second
+        setTimeout(() => {
+            bubble.classList.remove('popped');
+        }, 1000);
+    }
+}
+
+
+</script>
+</body>
+</html>
